@@ -1,0 +1,25 @@
+---
+- hosts: all
+  tasks:
+    - name: create application directory
+      file: path='/opt/application/backend' state=directory
+
+    - name: Debug url
+      debug: msg="http://127.0.0.1:8085/job/my-spring/{{build_number}}/artifact/web/build/libs/my-spring-1.0.0.jar"
+
+    - name : Download from jenkins
+      local_action:
+        module: get_url
+        url: "http://127.0.0.1:8085/job/my-spring/{{build_number}}/artifact/web/build/libs/my-spring-1.0.0.jar"
+        dest: /tmp/
+
+    - name : Send my-spring-1.0.0.jar
+      copy:
+        src:  /tmp/my-spring-1.0.0.jar
+        dest: /opt/application/backend
+      register: webulgari_jar
+
+    - name: Make my-spring-1.0.0.jar executable
+      file:
+        path: /opt/application/backend/my-spring-1.0.0.jar
+        mode: 0755
